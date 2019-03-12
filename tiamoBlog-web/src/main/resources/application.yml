@@ -1,0 +1,16 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /blog
+# spring 配置
+spring:
+  application:
+    name: blog
+swagger:
+  docket:
+    search:
+      title: 搜索服务
+      base-package:  com.tiamo.search
+      description: 搜索服务
+
+

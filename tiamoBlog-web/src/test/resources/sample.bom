@@ -1,0 +1,12 @@
+brooklyn.catalog:
+  id: com.tiamo.MySampleInCatalog
+  version: 1.0
+  description: My Sample
+  displayName: MySample
+  iconUrl: classpath:///sample-icon.png
+  itemType: template
+  libraries:
+  - file:///Path/to/archetype/sample/target/tiamoBlog-web-1.0-SNAPSHOT.jar
+  item:
+    services:
+    - type: com.tiamo.MySample
