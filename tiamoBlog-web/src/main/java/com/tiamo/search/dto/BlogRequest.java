@@ -6,7 +6,6 @@ import java.util.Date;
 
 /**
  * @Auther: wangjian
- * @Email: wangjian@qihaiyun.com
  * @Date: 2019-03-12 17:31:12
  */
 public class BlogRequest {
