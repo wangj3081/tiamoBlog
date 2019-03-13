@@ -3,6 +3,7 @@ package com.tiamo.search;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.Application;
 import com.tiamo.entity.BlogEntity;
+import com.tiamo.search.dto.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import org.apache.logging.log4j.core.util.UuidUtil;
 import org.junit.Test;
@@ -28,7 +29,10 @@ public class SearchArticleTest {
 
     @Test
     public void searchTest()  {
-        List<BlogEntity> list = searchArticle.queryByAuther("caoz");
+        BlogRequest request = new BlogRequest();
+        request.setAuthor("caoz");
+        request.setSize(1);
+        List<BlogEntity> list = searchArticle.queryByAuther(request);
         System.out.println(JSONObject.toJSONString(list));
     }
 
@@ -109,7 +113,22 @@ public class SearchArticleTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        List<BlogEntity> articleList = searchArticle.queryByAuther("caoz");
+        BlogRequest request = new BlogRequest();
+        request.setAuthor("caoz");
+        request.setSize(1);
+        List<BlogEntity> articleList = searchArticle.queryByAuther(request);
         System.out.println(JSONObject.toJSONString(articleList));
+    }
+
+    @Test
+    public void queryByContextTest() {
+        List<BlogEntity> result = searchArticle.queryByContext("懵懵懂懂");
+        System.out.println(JSONObject.toJSONString(result));
+    }
+
+    @Test
+    public void queryByArticleId() {
+        BlogEntity entity = searchArticle.queryByArticleId("bcf5f361-4492-11e9-866c-00fffbcc3ece", "caoz");
+        System.out.println(JSONObject.toJSONString(entity));
     }
 }

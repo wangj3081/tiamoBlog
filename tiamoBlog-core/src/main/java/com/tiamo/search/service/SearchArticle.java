@@ -1,6 +1,7 @@
 package com.tiamo.search.service;
 
 import com.tiamo.entity.BlogEntity;
+import com.tiamo.search.dto.BlogRequest;
 
 import java.util.List;
 
@@ -11,17 +12,25 @@ public interface SearchArticle {
 
     /**
      * 根据作者获取文章
-     * @param auther
+     * @param request
      * @return
      */
-    List<BlogEntity> queryByAuther(String auther);
+    List<BlogEntity> queryByAuther(BlogRequest request);
 
     /**
-     * 根据文章内容获取相应文章
+     * 根据文章内容获取相应文章,只返回文章与标题
      * @param contextStr
      * @return
      */
     List<BlogEntity> queryByContext(String contextStr);
+
+    /**
+     * 根据文章 Id 查询指定索引名(作者)的文章
+     * @param articleId
+     * @param indexName
+     * @return
+     */
+    BlogEntity queryByArticleId(String articleId, String indexName);
 
     /**
      * 批量写入文章

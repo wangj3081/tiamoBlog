@@ -3,6 +3,7 @@ package com.tiamo.search.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.BlogEntity;
+import com.tiamo.search.dto.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import com.tiamo.util.EsClient;
 import com.tiamo.util.EsUtil;
@@ -13,8 +14,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +40,20 @@ public class SearchArticleImpl implements SearchArticle {
 
 
     @Override
-    public List<BlogEntity> queryByAuther(String author) {
-        logger.debug("【根据作者获取文章列表】: {}", author);
+    public List<BlogEntity> queryByAuther(BlogRequest request) {
+        logger.debug("【根据作者获取文章列表】: {}", JSONObject.toJSONString(request));
         List<BlogEntity> result = new ArrayList<>();
-
         Client client = EsClient.getEsClient();
+
+        String author = request.getAuthor(); // 作者
         SearchRequestBuilder searchBuilder = client.prepareSearch(author); // 在该作者的索引
         TermQueryBuilder termQuery = new TermQueryBuilder("author", author); // 查找作者的名称,精确查找
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.should(termQuery);
+        boolQueryBuilder.must(termQuery);
+        int from = request.getPage() - 1;
+        int size = request.getSize();
         SearchRequestBuilder searchRequestBuilder = searchBuilder.setQuery(boolQueryBuilder)
+                .setFrom(from).setSize(size)    // 分页
                 .addSort("createTime", SortOrder.DESC);
         System.out.println(searchRequestBuilder.toString());
         SearchResponse searchResponse = searchRequestBuilder // 按照时间做倒序处理
@@ -63,6 +70,43 @@ public class SearchArticleImpl implements SearchArticle {
 
     @Override
     public List<BlogEntity> queryByContext(String contextStr) {
+        List<BlogEntity> result = new ArrayList<>();
+        Client client = EsClient.getEsClient();
+        SearchRequestBuilder searchBuilder = client.prepareSearch(); // 搜索
+        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("context",contextStr);
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(matchQueryBuilder).fetchSource(new String[]{"id","title","author","context"},null); // 只展示 source 中 context 与 title 两个字段
+        searchBuilder.setSource(sourceBuilder).setFrom(0).setSize(20);
+        System.out.println(searchBuilder.toString());
+        SearchResponse response = searchBuilder.execute().actionGet();
+        if (response != null) {
+            SearchHit[] hits = response.getHits().getHits();
+            for (SearchHit hit : hits) {
+                BlogEntity entity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
+                result.add(entity);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public BlogEntity queryByArticleId(String articleId, String indexName) {
+        logger.debug("【查询指定索引中的指定文章】: {}、{}", articleId, indexName);
+        Client client = EsClient.getEsClient();
+        SearchRequestBuilder searchBuilder = client.prepareSearch(indexName);
+        MatchQueryBuilder termQueryBuilder = new MatchQueryBuilder("articleId.keyword", articleId);
+        searchBuilder.setQuery(termQueryBuilder);
+        System.out.println(searchBuilder.toString());
+        SearchResponse searchResponse = searchBuilder.execute().actionGet();
+        if (searchResponse != null) {
+            SearchHit[] hits = searchResponse.getHits().getHits();
+            if (hits != null && hits.length > 0) {
+                SearchHit searchHit = hits[0];
+                BlogEntity entity = JSONObject.parseObject(searchHit.getSourceAsString(), BlogEntity.class);
+                return entity;
+            }
+        }
         return null;
     }
 

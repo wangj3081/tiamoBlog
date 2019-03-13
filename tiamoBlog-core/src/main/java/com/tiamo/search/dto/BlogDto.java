@@ -1,14 +1,17 @@
 package com.tiamo.search.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @Auther: wangjian
- * @Date: 2019-03-12 17:31:12
+ * Created by wangjian on 2019/3/9.
  */
-public class BlogRequest {
+@ApiModel
+public class BlogDto implements Serializable {
+
     @ApiModelProperty(value = "文章ID")
     private String articleId;  // 文章ID
 
@@ -23,6 +26,7 @@ public class BlogRequest {
 
     @ApiModelProperty(value = "正文")
     private String context;  // 正文
+
 
     public String getArticleId() {
         return articleId;
@@ -63,4 +67,6 @@ public class BlogRequest {
     public void setContext(String context) {
         this.context = context;
     }
+
+
 }
