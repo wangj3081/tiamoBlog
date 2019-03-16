@@ -64,17 +64,24 @@
       </dependency>
 
       <!--引入es-->
-     <!-- <dependency>
+      <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <version>5.6.8</version>
-      </dependency>-->
+        <version>6.6.1</version>
+      </dependency>
       <!--es连接-->
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>transport</artifactId>
         <version>5.6.4</version>
+        <!--<version>6.6.1</version>-->
       </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>6.6.1</version>
+        </dependency>
       <!--引入fastJson-->
       <dependency>
         <groupId>com.alibaba</groupId>

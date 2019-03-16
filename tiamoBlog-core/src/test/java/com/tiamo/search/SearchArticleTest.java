@@ -116,8 +116,8 @@ public class SearchArticleTest {
         BlogRequest request = new BlogRequest();
         request.setAuthor("caoz");
         request.setSize(1);
-        List<BlogEntity> articleList = searchArticle.queryByAuther(request);
-        System.out.println(JSONObject.toJSONString(articleList));
+//        List<BlogEntity> articleList = searchArticle.queryByAuther(request);
+//        System.out.println(JSONObject.toJSONString(articleList));
     }
 
     @Test

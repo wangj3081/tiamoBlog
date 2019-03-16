@@ -6,12 +6,18 @@ import com.tiamo.entity.BlogEntity;
 import com.tiamo.search.dto.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import com.tiamo.util.EsClient;
+import com.tiamo.util.EsRHLClient;
+import com.tiamo.util.EsRestHLClientUtil;
 import com.tiamo.util.EsUtil;
 import org.apache.logging.log4j.core.util.UuidUtil;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -26,45 +32,54 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
+ *  ES Rest High Level API 实现
  * Created by wangjian on 2019/3/9.
  */
-//@Service
-public class SearchArticleImpl implements SearchArticle {
+@Service
+public class SearchArticleHighLevelImpl implements SearchArticle {
 
 
-    private Logger logger = LoggerFactory.getLogger(SearchArticleImpl.class);
+    private Logger logger = LoggerFactory.getLogger(SearchArticleHighLevelImpl.class);
 
 
     @Override
     public List<BlogEntity> queryByAuther(BlogRequest request) {
         logger.debug("【根据作者获取文章列表】: {}", JSONObject.toJSONString(request));
         List<BlogEntity> result = new ArrayList<>();
-        Client client = EsClient.getEsClient();
+        RestHighLevelClient client = EsRHLClient.getEsClient();
 
         String author = request.getAuthor(); // 作者
-        SearchRequestBuilder searchBuilder = client.prepareSearch(author); // 在该作者的索引
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(author); // 索引名
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         TermQueryBuilder termQuery = new TermQueryBuilder("author", author); // 查找作者的名称,精确查找
-        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.must(termQuery);
+
+//        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+//        boolQueryBuilder.must(termQuery);
         int from = request.getPage() - 1;
         int size = request.getSize();
-        SearchRequestBuilder searchRequestBuilder = searchBuilder.setQuery(boolQueryBuilder)
-                .setFrom(from).setSize(size)    // 分页
-                .addSort("createTime", SortOrder.DESC);
-        System.out.println(searchRequestBuilder.toString());
-        SearchResponse searchResponse = searchRequestBuilder // 按照时间做倒序处理
-                .execute().actionGet();
-        if (searchResponse != null) {
-            SearchHit[] hits = searchResponse.getHits().getHits();
-            for (SearchHit hit : hits) {
-                BlogEntity blogEntity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
-                result.add(blogEntity);
+        searchSourceBuilder.query(termQuery).from(from).size(size)  // 设置分页
+                .sort("createTime", SortOrder.DESC); // 按时间倒序
+        searchRequest.source(searchSourceBuilder); // 设置搜索条件
+        try {
+            System.out.println(searchRequest.toString());
+            SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
+            if (search != null) {
+                SearchHit[] hits = search.getHits().getHits();
+                for (SearchHit hit : hits) {
+                    BlogEntity blogEntity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
+                    result.add(blogEntity);
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
         return result;
     }
 
@@ -115,7 +130,10 @@ public class SearchArticleImpl implements SearchArticle {
         logger.debug("【批量写入文章】:{}", JSONObject.toJSONString(list));
 
         try {
-            EsUtil.createIndexTeample(indexName, getMapping(), type);
+//            EsRestHLClientUtil.createIndexTeample(indexName, getMapping(), type);
+            if (!EsRestHLClientUtil.indexIsExists(indexName)) { // 不存在则创建
+                EsRestHLClientUtil.createIntex(indexName, getMapping(), type);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -123,7 +141,7 @@ public class SearchArticleImpl implements SearchArticle {
             IndexRequest indexRequest = new IndexRequest(indexName, type, UuidUtil.getTimeBasedUuid().toString());
             String text = JSONObject.toJSONString(blogEntity);
             indexRequest.source(JSONObject.parseObject(text));
-            EsUtil.getBulkProcessor().add(indexRequest);
+            EsRestHLClientUtil.getBulkProcessor().add(indexRequest);
         }
         return true;
     }

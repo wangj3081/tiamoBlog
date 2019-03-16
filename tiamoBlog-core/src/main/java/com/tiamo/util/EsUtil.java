@@ -1,7 +1,7 @@
 package com.tiamo.util;
 
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
+//import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -25,7 +25,7 @@ public class EsUtil {
     private static BulkProcessor processor;
 
     static {
-        client = EsClient.getEsClient();
+//        client = EsClient.getEsClient();
     }
 
     /**
