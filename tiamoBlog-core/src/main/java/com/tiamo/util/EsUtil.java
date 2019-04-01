@@ -25,7 +25,7 @@ public class EsUtil {
     private static BulkProcessor processor;
 
     static {
-//        client = EsClient.getEsClient();
+        client = EsClient.getEsClient();
     }
 
     /**

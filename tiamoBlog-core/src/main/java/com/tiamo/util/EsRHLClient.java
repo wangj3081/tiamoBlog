@@ -15,7 +15,8 @@ public class EsRHLClient {
     // 集群名
     private static String clusterName = "es_66";
     // ip
-    private static String ip = "192.168.134.130";
+//    private static String ip = "192.168.134.130";
+    private static String ip = "192.168.158.134";
     // 端口
     private static String port = "9200";
 

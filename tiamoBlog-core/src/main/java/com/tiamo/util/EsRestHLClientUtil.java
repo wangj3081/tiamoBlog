@@ -6,6 +6,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 
@@ -89,7 +91,7 @@ public class EsRestHLClientUtil {
 
 
     /**
-     *  创建索引模板并设置mapping
+     *  创建索引模板并设置通用 mapping
      * @param indexName 索引名称
      * @param mapping 要创建的mapping对象
      * @param type mapping 类型，一个mapping只能有一种类型
@@ -98,7 +100,7 @@ public class EsRestHLClientUtil {
 
         Settings settings = Settings.builder()
                 .put("index.number_of_shards",3) // 分片大小,默认为5
-                .put("index.max_result_window",1000)   //  查询索引返回的内容长度限制,默认为1W
+                .put("index.max_result_window",10000)   //  查询索引返回的内容长度限制,默认为1W
                 .put("number_of_replicas", 0) // 设置副本数
                 .build();
         UpdateSettingsRequest settingsRequest = new UpdateSettingsRequest();
@@ -106,21 +108,29 @@ public class EsRestHLClientUtil {
 
 
         // 设置模板
-//        PutIndexTemplateRequestBuilder template = client.admin().indices().preparePutTemplate(templateName).setTemplate(templateName);
-        PutMappingRequest mappingRequest = new PutMappingRequest(type);
-//        mappingRequest.source(mapping);
-
-        mappingRequest.type("_doc"); // 设置要创建的类型
-        mappingRequest.timeout(TimeValue.timeValueMinutes(2)); // 所有节点确认索引创建超过2分钟超时，可选
-        mappingRequest.masterNodeTimeout(TimeValue.timeValueMinutes(1)); // 连接到主节点超1分钟超时， 可选
-        mappingRequest.indices(indexName); // 设置索引名
-        mappingRequest.source(mapping); // 设置 properties 结构
+        PutIndexTemplateRequest templateRequest = new PutIndexTemplateRequest(indexName+"-*"); // 设置模板名称
+        templateRequest.patterns(Arrays.asList("pattern-1", indexName +"-*"));
+        templateRequest.settings(settings); // 设置模板索引配置
+        templateRequest.mapping(type, mapping); // 设置 mapping
+        templateRequest.masterNodeTimeout(TimeValue.timeValueMinutes(1)); // 设置创建超时时间为 1 分钟
         try {
+            AcknowledgedResponse response = client.indices().putTemplate(templateRequest, RequestOptions.DEFAULT); // 同步执行
+            System.out.println(response.isAcknowledged() ? "创建Template成功":"创建Template失败");
+            // 异步执行创建
+            ActionListener<AcknowledgedResponse> listener = new  ActionListener<AcknowledgedResponse>(){
 
-            boolean acknowledged = client.indices().putSettings(settingsRequest, RequestOptions.DEFAULT).isAcknowledged();// 设置
-            System.out.println(acknowledged ? "设置settings成功":"设置settings失败");
-            AcknowledgedResponse response = client.indices().putMapping(mappingRequest, RequestOptions.DEFAULT);
-            System.out.println(response.isAcknowledged() ? "创建Mapping成功":"创建Mapping失败");
+                @Override
+                public void onResponse(AcknowledgedResponse rep) {
+                    logger.debug("【异步创建模板:「{}」】成功", indexName);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    logger.error("【异步创建模板:「{}」】失败", indexName);
+                    logger.error("异常信息:{}", e);
+                }
+            };
+            client.indices().putTemplateAsync(templateRequest, RequestOptions.DEFAULT, listener);
         } catch (IOException e) {
             e.printStackTrace();
         }

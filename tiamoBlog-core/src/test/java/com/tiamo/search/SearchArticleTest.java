@@ -107,14 +107,14 @@ public class SearchArticleTest {
         entity.setContext(context);
         entity.setCreateTime(new Date());
         list.add(entity);
-        boolean b = searchArticle.insertArticle(list, "caoz", "article");
+        boolean b = searchArticle.insertArticle(list, "caozold", "article");
         try {
             TimeUnit.SECONDS.sleep(6);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         BlogRequest request = new BlogRequest();
-        request.setAuthor("caoz");
+        request.setAuthor("caozold");
         request.setSize(1);
 //        List<BlogEntity> articleList = searchArticle.queryByAuther(request);
 //        System.out.println(JSONObject.toJSONString(articleList));

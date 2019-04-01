@@ -40,7 +40,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  *  ES Rest High Level API 实现
  * Created by wangjian on 2019/3/9.
  */
-@Service
+//@Service
 public class SearchArticleHighLevelImpl implements SearchArticle {
 
 
@@ -130,10 +130,10 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         logger.debug("【批量写入文章】:{}", JSONObject.toJSONString(list));
 
         try {
-//            EsRestHLClientUtil.createIndexTeample(indexName, getMapping(), type);
-            if (!EsRestHLClientUtil.indexIsExists(indexName)) { // 不存在则创建
-                EsRestHLClientUtil.createIntex(indexName, getMapping(), type);
-            }
+            EsRestHLClientUtil.createIndexTeample(indexName, getMapping(), type);
+//            if (!EsRestHLClientUtil.indexIsExists(indexName)) { // 不存在则创建
+//                EsRestHLClientUtil.createIntex(indexName, getMapping(), type);
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
