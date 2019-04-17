@@ -1,44 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <substitutionProperty name="logger.appname" value="@config.logger.appname@"/>
+    <substitutionProperty name="logger.dir" value="@config.logger.dir@"/>
+    <substitutionProperty name="logger.level" value="info"/>
+    <substitutionProperty name="logger.rootLevel" value="info"/>
+    <substitutionProperty name="logger.packageName" value="@config.logger.packageName@"/>
+    <substitutionProperty name="logger.maxsize" value="1GB"/><!-- 文件拆分大小 -->
+    <substitutionProperty name="logger.queueSize" value="1024"/><!-- 异步写日志文件队列event数量上限 -->
 
-<configuration scan="true">
-	<property name="APP" value="${project.artifactId}" />
-	<!--<property name="LOG_HOME" value="/data/www/log/${APP}" />-->
-	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<pattern>%d{yy-MM-dd.HH:mm:ss.SSS} [%-16t] %-5p %-22c{0} %X{ServiceId} - %m%n</pattern>
-		</encoder>
-	</appender>
-	<appender name="DETAIL"
-		class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
-		<File>${LOG_HOME}/${APP}_detail.log</File>
-		<encoder>
-			<pattern>%d{yy-MM-dd.HH:mm:ss.SSS} [%-16t] %-5p %-22c{0} %X{ServiceId} - %m%n</pattern>
-		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_HOME}/${APP}_detail.log.%d{yyyyMMdd}</fileNamePattern>
-		</rollingPolicy>
-	</appender>
-	<appender name="ACCESS"
-		class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
-		<File>${LOG_HOME}/${APP}_access.log</File>
-		<encoder>
-			<pattern>%d{yy-MM-dd.HH:mm:ss.SSS};%X{ServiceId};%m%n</pattern>
-		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_HOME}/${APP}_access.log.%d{yyyyMMdd}</fileNamePattern>
-		</rollingPolicy>
-	</appender>
+    <contextName>${logger.appname}</contextName>
+    <jmxConfigurator/>
 
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS}|%X{traceId2}|%X{spanId2}|%X{parentId2}|%-5level|${logger.appname}|%X{localIp}|%X{remoteIp}|%thread|%logger{36}.%method\(\):%L|%msg%n</pattern>
+        </layout>
+    </appender>
 
-	<logger name="ACCESS">
-		<appender-ref ref="ACCESS" />
-	</logger>
-	<!--<logger name="druid.sql.Statement" level="DEBUG" />-->
-	<!--设置mybatis的日志信息输出-->
-	<!--<logger name="com.microboot.dao" level="TRACE" />-->
+    <appender name="file.all" class="ch.qos.logback.core.rolling.RollingFileAppender"><!-- All Log Info -->
+        <File>${logger.dir}/${logger.appname}.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logger.dir}/${logger.appname}-all-%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${logger.maxsize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+             <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS}|%X{traceId2}|%X{spanId2}|%X{parentId2}|%-5level|${logger.appname}|%X{localIp}|%X{remoteIp}|%thread|%logger{36}.%method\(\):%L|%msg%n</pattern>
+        </layout>
+    </appender>
 
-	<root level="INFO">
-		<appender-ref ref="DETAIL" />
-		<appender-ref ref="CONSOLE" />
-	</root>
+    <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+    <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+    <!-- 添加附加的appender,最多只能添加一个 -->
+    <appender name="file.async" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>${logger.queueSize}</queueSize>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="file.all"/>
+    </appender>
+
+    <appender name="file.error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logger.dir}/${logger.appname}-error.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logger.dir}/${logger.appname}-error-%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${logger.maxsize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <layout class="ch.qos.logback.classic.PatternLayout">
+             <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS}|%X{traceId2}|%X{spanId2}|%X{parentId2}|%-5level|${logger.appname}|%X{localIp}|%X{remoteIp}|%thread|%logger{36}.%method\(\):%L|%msg%n</pattern>
+        </layout>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <logger name="${logger.packageName}" additivity="false">
+        <level value="${logger.level}"/>
+        @config.logger.stdout@
+        <appender-ref ref="file.async"/>
+        <appender-ref ref="file.error"/>
+    </logger>
+
+    <logger name="stdout" additivity="false" level="DEBUG">
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <root level="${logger.rootLevel}">
+        @config.logger.stdout@
+        <appender-ref ref="file.async"/>
+        <appender-ref ref="file.error"/>
+    </root>
+
 </configuration>

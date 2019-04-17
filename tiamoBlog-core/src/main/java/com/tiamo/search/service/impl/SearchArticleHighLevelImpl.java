@@ -40,7 +40,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  *  ES Rest High Level API 实现
  * Created by wangjian on 2019/3/9.
  */
-//@Service
+@Service
 public class SearchArticleHighLevelImpl implements SearchArticle {
 
 
@@ -86,21 +86,26 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
     @Override
     public List<BlogEntity> queryByContext(String contextStr) {
         List<BlogEntity> result = new ArrayList<>();
-        Client client = EsClient.getEsClient();
-        SearchRequestBuilder searchBuilder = client.prepareSearch(); // 搜索
+        RestHighLevelClient client = EsRHLClient.getEsClient();
+        SearchRequest searchRequest = new SearchRequest();
         MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("context",contextStr);
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(matchQueryBuilder).fetchSource(new String[]{"id","title","author","context"},null); // 只展示 source 中 context 与 title 两个字段
-        searchBuilder.setSource(sourceBuilder).setFrom(0).setSize(20);
-        System.out.println(searchBuilder.toString());
-        SearchResponse response = searchBuilder.execute().actionGet();
-        if (response != null) {
-            SearchHit[] hits = response.getHits().getHits();
-            for (SearchHit hit : hits) {
-                BlogEntity entity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
-                result.add(entity);
+        searchRequest.source(sourceBuilder);
+        System.out.println("DSL:" + searchRequest.source().toString());
+        SearchResponse response = null;
+        try {
+            response = client.search(searchRequest, RequestOptions.DEFAULT);
+            if (response != null) {
+                SearchHit[] hits = response.getHits().getHits();
+                for (SearchHit hit : hits) {
+                    BlogEntity entity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
+                    result.add(entity);
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return result;
     }
@@ -108,19 +113,27 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
     @Override
     public BlogEntity queryByArticleId(String articleId, String indexName) {
         logger.debug("【查询指定索引中的指定文章】: {}、{}", articleId, indexName);
-        Client client = EsClient.getEsClient();
-        SearchRequestBuilder searchBuilder = client.prepareSearch(indexName);
-        MatchQueryBuilder termQueryBuilder = new MatchQueryBuilder("articleId.keyword", articleId);
-        searchBuilder.setQuery(termQueryBuilder);
-        System.out.println(searchBuilder.toString());
-        SearchResponse searchResponse = searchBuilder.execute().actionGet();
-        if (searchResponse != null) {
-            SearchHit[] hits = searchResponse.getHits().getHits();
-            if (hits != null && hits.length > 0) {
-                SearchHit searchHit = hits[0];
-                BlogEntity entity = JSONObject.parseObject(searchHit.getSourceAsString(), BlogEntity.class);
-                return entity;
+        RestHighLevelClient client = EsRHLClient.getEsClient();
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(indexName); // 索引名称
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("articleId.keyword", articleId); // 只有 mapping 中将该字段添加 keyword 类型
+        sourceBuilder.query(matchQueryBuilder);
+        searchRequest.source(sourceBuilder);
+        System.out.println("DSL: " + sourceBuilder.toString());
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            if (searchResponse != null) {
+                SearchHit[] hits = searchResponse.getHits().getHits();
+                if (hits != null && hits.length > 0) {
+                    SearchHit searchHit = hits[0];
+                    BlogEntity entity = JSONObject.parseObject(searchHit.getSourceAsString(), BlogEntity.class);
+                    return entity;
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -130,7 +143,9 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         logger.debug("【批量写入文章】:{}", JSONObject.toJSONString(list));
 
         try {
-            EsRestHLClientUtil.createIndexTeample(indexName, getMapping(), type);
+            if (!EsRestHLClientUtil.indexIsExists(indexName)) { // 索引不存在才创建
+                EsRestHLClientUtil.createIndexTeample(indexName, getMapping(), type);
+            }
 //            if (!EsRestHLClientUtil.indexIsExists(indexName)) { // 不存在则创建
 //                EsRestHLClientUtil.createIntex(indexName, getMapping(), type);
 //            }

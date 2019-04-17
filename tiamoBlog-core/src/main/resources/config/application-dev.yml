@@ -1,0 +1,6 @@
+#logger
+config.logger.appname: tiamoBlog
+config.logger.dir: /home/tiamoBlog/dev/logs
+config.logger.packageName: com.tiamo
+config.logger.stdout: <appender-ref ref="stdout"/>
+

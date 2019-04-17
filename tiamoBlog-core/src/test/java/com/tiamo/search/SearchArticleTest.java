@@ -41,7 +41,8 @@ public class SearchArticleTest {
         List<BlogEntity> list = new ArrayList<>();
         BlogEntity entity = new BlogEntity();
         entity.setAuthor("caoz的梦呓");
-        entity.setArticleId(UuidUtil.getTimeBasedUuid().toString());
+//        entity.setArticleId(UuidUtil.getTimeBasedUuid().toString());
+        entity.setArticleId("c7c984f2-60e9-11e9-8b0a-bbdsada");
         entity.setTitle("研发人员是怎样背锅的");
         String context = "本文完全虚构，不针对任何具体企业，如有雷同，纯属巧合。\n" +
                 "\n" +
@@ -128,7 +129,7 @@ public class SearchArticleTest {
 
     @Test
     public void queryByArticleId() {
-        BlogEntity entity = searchArticle.queryByArticleId("bcf5f361-4492-11e9-866c-00fffbcc3ece", "caoz");
+        BlogEntity entity = searchArticle.queryByArticleId("c670abb1-60e9-11e9-8b0a-00fffbcc3ece", "caozold");
         System.out.println(JSONObject.toJSONString(entity));
     }
 }
