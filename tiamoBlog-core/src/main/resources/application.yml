@@ -4,5 +4,4 @@ server:
 logging:
   level:
     com:
-      qihai:
-        inventory: debug
+      tiamo: debug

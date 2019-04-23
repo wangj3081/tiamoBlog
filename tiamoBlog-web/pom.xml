@@ -29,7 +29,38 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <environment>dev</environment>
+            </properties>
+            <activation>
+                <!--默认使用-->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <environment>test</environment>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
-        <finalName>tiamoBlog-web</finalName>
+        <finalName>tiamoBlog-web</finalName> <!--jar 包名称-->
+        <filters>
+            <filter>src/main/resources/config/application-${environment}.yml}</filter>
+        </filters>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>config/**</exclude> <!--排除 config 目录下的配置文件-->
+                </excludes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>
