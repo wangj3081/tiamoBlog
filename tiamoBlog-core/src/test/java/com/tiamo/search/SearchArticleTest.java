@@ -30,7 +30,7 @@ public class SearchArticleTest {
     @Test
     public void searchTest()  {
         BlogRequest request = new BlogRequest();
-        request.setAuthor("caoz");
+        request.setAuthor("曹政");
         request.setSize(1);
         List<BlogEntity> list = searchArticle.queryByAuther(request);
         System.out.println(JSONObject.toJSONString(list));
@@ -41,6 +41,7 @@ public class SearchArticleTest {
         List<BlogEntity> list = new ArrayList<>();
         BlogEntity entity = new BlogEntity();
         entity.setAuthor("caoz的梦呓");
+        entity.setOtherName("曹政,互联网百晓生");
 //        entity.setArticleId(UuidUtil.getTimeBasedUuid().toString());
         entity.setArticleId("c7c984f2-60e9-11e9-8b0a-bbdsada");
         entity.setTitle("研发人员是怎样背锅的");
@@ -108,14 +109,14 @@ public class SearchArticleTest {
         entity.setContext(context);
         entity.setCreateTime(new Date());
         list.add(entity);
-        boolean b = searchArticle.insertArticle(list, "caozold", "article");
+        boolean b = searchArticle.insertArticle(list, "caoz", "article");
         try {
             TimeUnit.SECONDS.sleep(6);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         BlogRequest request = new BlogRequest();
-        request.setAuthor("caozold");
+        request.setAuthor("caoz");
         request.setSize(1);
 //        List<BlogEntity> articleList = searchArticle.queryByAuther(request);
 //        System.out.println(JSONObject.toJSONString(articleList));

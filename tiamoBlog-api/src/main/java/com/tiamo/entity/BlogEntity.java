@@ -15,6 +15,8 @@ public class BlogEntity implements Serializable {
 
     private String author;  // 作者
 
+    private String otherName; // 作者其他称呼
+
     private Date createTime;  // 创建时间
 
     private String context;  // 正文
@@ -67,5 +69,13 @@ public class BlogEntity implements Serializable {
 
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public String getOtherName() {
+        return otherName;
+    }
+
+    public void setOtherName(String otherName) {
+        this.otherName = otherName;
     }
 }

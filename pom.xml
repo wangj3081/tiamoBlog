@@ -67,8 +67,8 @@
       <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <!--<version>6.6.1</version>-->
-          <version>6.5.4</version>
+        <version>6.6.1</version>
+          <!--<version>6.5.4</version>-->
       </dependency>
       <!--es连接-->
       <dependency>

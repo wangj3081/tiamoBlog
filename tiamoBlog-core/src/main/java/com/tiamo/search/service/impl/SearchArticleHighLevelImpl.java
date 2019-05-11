@@ -21,6 +21,8 @@ import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -55,19 +57,19 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
 
         String author = request.getAuthor(); // 作者
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(author); // 索引名
+//        searchRequest.indices(author); // 索引名
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        TermQueryBuilder termQuery = new TermQueryBuilder("author", author); // 查找作者的名称,精确查找
-
+//        TermQueryBuilder termQuery = new TermQueryBuilder("author", author); // 查找作者的名称,精确查找
+        QueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(author, "author", "otherName");
 //        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 //        boolQueryBuilder.must(termQuery);
         int from = request.getPage() - 1;
         int size = request.getSize();
-        searchSourceBuilder.query(termQuery).from(from).size(size)  // 设置分页
+        searchSourceBuilder.query(multiMatchQuery).from(from).size(size)  // 设置分页
                 .sort("createTime", SortOrder.DESC); // 按时间倒序
         searchRequest.source(searchSourceBuilder); // 设置搜索条件
         try {
-            System.out.println(searchRequest.toString());
+            System.out.println(searchSourceBuilder.toString());
             SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
             if (search != null) {
                 SearchHit[] hits = search.getHits().getHits();
@@ -184,6 +186,16 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
 
                 .startObject("author")
                 .field("type","text")
+                .startObject("fields")
+                .startObject("keyword")
+                .field("type","keyword")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject("otherName")
+                .field("type","text")
+                .field("analyzer","ik_max_word")
                 .startObject("fields")
                 .startObject("keyword")
                 .field("type","keyword")
