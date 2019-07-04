@@ -67,8 +67,8 @@
       <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <version>6.6.1</version>
-          <!--<version>6.5.4</version>-->
+        <!--<version>6.6.1</version>-->
+          <version>6.5.4</version>
       </dependency>
       <!--es连接-->
       <dependency>
@@ -118,6 +118,24 @@
         <artifactId>commons-lang3</artifactId>
         <version>3.7</version>
       </dependency>
+
+        <!--日志包-->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <!--entity工具包-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.8</version>
+        </dependency>
 
     </dependencies>
 

@@ -108,8 +108,8 @@ public class EsRestHLClientUtil {
 
 
         // 设置模板
-        PutIndexTemplateRequest templateRequest = new PutIndexTemplateRequest(indexName+"-*"); // 设置模板名称
-        templateRequest.patterns(Arrays.asList("pattern-1", indexName +"-*"));
+        PutIndexTemplateRequest templateRequest = new PutIndexTemplateRequest(indexName+"*"); // 设置模板名称
+        templateRequest.patterns(Arrays.asList("pattern-1", indexName +"*"));
         templateRequest.settings(settings); // 设置模板索引配置
         templateRequest.mapping(type, mapping); // 设置 mapping
         templateRequest.masterNodeTimeout(TimeValue.timeValueMinutes(1)); // 设置创建超时时间为 1 分钟

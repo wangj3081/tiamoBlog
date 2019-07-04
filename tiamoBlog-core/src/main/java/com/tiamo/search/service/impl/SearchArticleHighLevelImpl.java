@@ -3,7 +3,7 @@ package com.tiamo.search.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.BlogEntity;
-import com.tiamo.search.dto.BlogRequest;
+import com.tiamo.search.dto.request.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import com.tiamo.util.EsClient;
 import com.tiamo.util.EsRHLClient;
@@ -30,6 +30,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,19 +72,14 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         try {
             System.out.println(searchSourceBuilder.toString());
             SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
-            if (search != null) {
-                SearchHit[] hits = search.getHits().getHits();
-                for (SearchHit hit : hits) {
-                    BlogEntity blogEntity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
-                    result.add(blogEntity);
-                }
-            }
+            result = getSearchResultList(search, BlogEntity.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return result;
     }
+
 
     @Override
     public List<BlogEntity> queryByContext(String contextStr) {
@@ -99,13 +95,7 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         SearchResponse response = null;
         try {
             response = client.search(searchRequest, RequestOptions.DEFAULT);
-            if (response != null) {
-                SearchHit[] hits = response.getHits().getHits();
-                for (SearchHit hit : hits) {
-                    BlogEntity entity = JSONArray.parseObject(hit.getSourceAsString(), BlogEntity.class);
-                    result.add(entity);
-                }
-            }
+            result = getSearchResultList(response, BlogEntity.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -126,13 +116,9 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         SearchResponse searchResponse = null;
         try {
             searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-            if (searchResponse != null) {
-                SearchHit[] hits = searchResponse.getHits().getHits();
-                if (hits != null && hits.length > 0) {
-                    SearchHit searchHit = hits[0];
-                    BlogEntity entity = JSONObject.parseObject(searchHit.getSourceAsString(), BlogEntity.class);
-                    return entity;
-                }
+            List<BlogEntity> searchResultList = getSearchResultList(searchResponse, BlogEntity.class);
+            if (!CollectionUtils.isEmpty(searchResultList)) {
+                return searchResultList.get(0); // 只有一个
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -225,5 +211,24 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         return mapping;
     }
 
+
+    /**
+     *
+     * @param search 搜索返回结果项
+     * @param resultClass 需要转换的 class 对象
+     * @param <T>  泛型类
+     * @return
+     */
+    private <T> List<T>  getSearchResultList(SearchResponse search, Class<T> resultClass) {
+        List<T> result = new ArrayList<>();
+        if (search != null) {
+            SearchHit[] hits = search.getHits().getHits();
+            for (SearchHit hit : hits) {
+                T entity = JSONArray.parseObject(hit.getSourceAsString(), resultClass);
+                result.add(entity);
+            }
+        }
+        return result;
+    }
 
 }

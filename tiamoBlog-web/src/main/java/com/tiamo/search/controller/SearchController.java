@@ -1,8 +1,8 @@
 package com.tiamo.search.controller;
 
 import com.tiamo.entity.BlogEntity;
-import com.tiamo.search.dto.BlogDto;
-import com.tiamo.search.dto.BlogRequest;
+import com.tiamo.search.dto.response.BlogDto;
+import com.tiamo.search.dto.request.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import com.tiamo.util.CustomBeanAndSuperUtils;
 import com.tiamo.util.Result;

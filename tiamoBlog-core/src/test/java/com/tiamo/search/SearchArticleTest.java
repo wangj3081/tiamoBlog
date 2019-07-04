@@ -3,7 +3,7 @@ package com.tiamo.search;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.Application;
 import com.tiamo.entity.BlogEntity;
-import com.tiamo.search.dto.BlogRequest;
+import com.tiamo.search.dto.request.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import org.apache.logging.log4j.core.util.UuidUtil;
 import org.junit.Test;

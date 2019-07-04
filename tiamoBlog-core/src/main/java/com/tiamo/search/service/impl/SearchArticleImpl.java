@@ -3,7 +3,7 @@ package com.tiamo.search.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.BlogEntity;
-import com.tiamo.search.dto.BlogRequest;
+import com.tiamo.search.dto.request.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
 import com.tiamo.util.EsClient;
 import com.tiamo.util.EsUtil;

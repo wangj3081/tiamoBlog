@@ -1,9 +1,8 @@
 package com.tiamo.search.service;
 
 import com.tiamo.entity.BlogEntity;
-import com.tiamo.search.dto.BlogRequest;
+import com.tiamo.search.dto.request.BlogRequest;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

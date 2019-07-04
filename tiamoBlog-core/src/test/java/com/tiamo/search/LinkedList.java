@@ -1,7 +1,7 @@
 package com.tiamo.search;
 
 import com.alibaba.fastjson.JSONObject;
-import com.tiamo.search.dto.BlogDto;
+import com.tiamo.search.dto.response.BlogDto;
 
 import java.io.Serializable;
 import java.util.Objects;

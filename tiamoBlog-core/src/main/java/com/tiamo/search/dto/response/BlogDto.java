@@ -1,4 +1,4 @@
-package com.tiamo.search.dto;
+package com.tiamo.search.dto.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

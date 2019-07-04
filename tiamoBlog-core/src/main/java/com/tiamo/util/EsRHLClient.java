@@ -13,11 +13,12 @@ import org.elasticsearch.client.RestHighLevelClient;
 public class EsRHLClient {
 
     // 集群名
-    private static String clusterName = "es_66";
-//    private static String clusterName = "es6-4";
+//    private static String clusterName = "es_66";
+    private static String clusterName = "es6.5";
     // ip
-    private static String ip = "192.168.134.130";
-//    private static String ip = "192.168.158.129";
+//    private static String ip = "192.168.134.130";
+    private static String ip = "192.168.158.134";
+//    private static String ip = "localhost";
     // 端口
     private static String port = "9200";
 
