@@ -72,7 +72,7 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         try {
             System.out.println(searchSourceBuilder.toString());
             SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
-            result = getSearchResultList(search, BlogEntity.class);
+            result = EsRestHLClientUtil.getSearchResultList(search, BlogEntity.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -95,7 +95,7 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         SearchResponse response = null;
         try {
             response = client.search(searchRequest, RequestOptions.DEFAULT);
-            result = getSearchResultList(response, BlogEntity.class);
+            result = EsRestHLClientUtil.getSearchResultList(response, BlogEntity.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,7 +116,7 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
         SearchResponse searchResponse = null;
         try {
             searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-            List<BlogEntity> searchResultList = getSearchResultList(searchResponse, BlogEntity.class);
+            List<BlogEntity> searchResultList = EsRestHLClientUtil.getSearchResultList(searchResponse, BlogEntity.class);
             if (!CollectionUtils.isEmpty(searchResultList)) {
                 return searchResultList.get(0); // 只有一个
             }
@@ -209,26 +209,6 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
 
         mapping = mapping.endObject().endObject();
         return mapping;
-    }
-
-
-    /**
-     *
-     * @param search 搜索返回结果项
-     * @param resultClass 需要转换的 class 对象
-     * @param <T>  泛型类
-     * @return
-     */
-    private <T> List<T>  getSearchResultList(SearchResponse search, Class<T> resultClass) {
-        List<T> result = new ArrayList<>();
-        if (search != null) {
-            SearchHit[] hits = search.getHits().getHits();
-            for (SearchHit hit : hits) {
-                T entity = JSONArray.parseObject(hit.getSourceAsString(), resultClass);
-                result.add(entity);
-            }
-        }
-        return result;
     }
 
 }

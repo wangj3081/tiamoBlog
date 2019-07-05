@@ -1,6 +1,5 @@
 package com.tiamo.search.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.BookMappingEntity;
 import com.tiamo.search.service.SearchBookService;
@@ -8,7 +7,6 @@ import com.tiamo.util.EsRHLClient;
 import com.tiamo.util.EsRestHLClientUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -16,7 +14,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.index.search.MatchQuery;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -61,6 +59,8 @@ public class SearchBookServiceImpl implements SearchBookService {
             }
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); // 搜索语句构建
             MatchQueryBuilder matchQuery = new MatchQueryBuilder("title",title); // 搜索查询方式构建
+            matchQuery.zeroTermsQuery(MatchQuery.ZeroTermsQuery.NONE);
+            matchQuery.analyzer("ik_max_word");
             TermsAggregationBuilder termsAggregation = AggregationBuilders.terms("groupType").field("type"); // 按书籍文件类型进行聚合分组
 //            ValueCountAggregationBuilder type = AggregationBuilders.count("groupType").field("type"); // 下钻继续分组
 //            termsAggregation.subAggregation(type);
@@ -68,7 +68,7 @@ public class SearchBookServiceImpl implements SearchBookService {
             searchRequest.source(sourceBuilder);
             System.out.println("DSL:"+ sourceBuilder.toString());
             SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
-            List<BookMappingEntity> resultList = getSearchResultList(search, BookMappingEntity.class);
+            List<BookMappingEntity> resultList = EsRestHLClientUtil.getSearchResultList(search, BookMappingEntity.class);
             return resultList;
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,25 +106,6 @@ public class SearchBookServiceImpl implements SearchBookService {
         return false;
     }
 
-
-    /**
-     *
-     * @param search 搜索返回结果项
-     * @param resultClass 需要转换的 class 对象
-     * @param <T>  泛型类
-     * @return
-     */
-    private <T> List<T>  getSearchResultList(SearchResponse search, Class<T> resultClass) {
-        List<T> result = new ArrayList<>();
-        if (search != null) {
-            SearchHit[] hits = search.getHits().getHits();
-            for (SearchHit hit : hits) {
-                T entity = JSONArray.parseObject(hit.getSourceAsString(), resultClass);
-                result.add(entity);
-            }
-        }
-        return result;
-    }
 
     // 创建Mapping
     public static XContentBuilder getMapping() throws IOException {

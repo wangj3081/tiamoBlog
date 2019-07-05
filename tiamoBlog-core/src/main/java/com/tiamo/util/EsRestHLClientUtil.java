@@ -1,5 +1,6 @@
 package com.tiamo.util;
 
+import com.alibaba.fastjson.JSONArray;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -10,6 +11,7 @@ import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateReque
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -18,11 +20,14 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 
@@ -199,6 +204,25 @@ public class EsRestHLClientUtil {
                 e.printStackTrace();
             }*/
         }
+    }
+
+    /**
+     *
+     * @param search 搜索返回结果项
+     * @param resultClass 需要转换的 class 对象
+     * @param <T>  泛型类
+     * @return
+     */
+    public static <T> List<T> getSearchResultList(SearchResponse search, Class<T> resultClass) {
+        List<T> result = new ArrayList<>();
+        if (search != null) {
+            SearchHit[] hits = search.getHits().getHits();
+            for (SearchHit hit : hits) {
+                T entity = JSONArray.parseObject(hit.getSourceAsString(), resultClass);
+                result.add(entity);
+            }
+        }
+        return result;
     }
 
 }

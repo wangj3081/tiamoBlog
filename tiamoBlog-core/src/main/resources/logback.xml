@@ -2,8 +2,8 @@
 <configuration>
     <substitutionProperty name="logger.appname" value="@config.logger.appname@"/>
     <substitutionProperty name="logger.dir" value="@config.logger.dir@"/>
-    <substitutionProperty name="logger.level" value="info"/>
-    <substitutionProperty name="logger.rootLevel" value="info"/>
+    <substitutionProperty name="logger.level" value="debug"/>
+    <substitutionProperty name="logger.rootLevel" value="debug"/>
     <substitutionProperty name="logger.packageName" value="@config.logger.packageName@"/>
     <substitutionProperty name="logger.maxsize" value="1GB"/><!-- 文件拆分大小 -->
     <substitutionProperty name="logger.queueSize" value="1024"/><!-- 异步写日志文件队列event数量上限 -->
