@@ -5,3 +5,16 @@ logging:
   level:
     com:
       tiamo: debug
+spring:
+  redis:
+    host: 192.168.134.130
+    port: 6379
+    timeout: 1000 # 1秒
+    password: redis
+    jedis:
+      pool:
+        max-active: 10
+        max-idle: 8
+        max-wait: 100 # 毫秒
+        min-idle: 1
+
