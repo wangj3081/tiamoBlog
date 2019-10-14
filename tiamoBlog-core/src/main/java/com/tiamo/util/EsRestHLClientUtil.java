@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -15,6 +13,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
@@ -53,10 +52,8 @@ public class EsRestHLClientUtil {
      * @return
      */
     public static boolean indexIsExists(String indexName) {
-        GetIndexRequest request = new GetIndexRequest();
-        request.indices(indexName);
+        GetIndexRequest request = new GetIndexRequest(indexName);
         try {
-
             boolean exists = client.indices().exists(request, RequestOptions.DEFAULT);
             return exists;
         } catch (Exception e) {
@@ -71,7 +68,7 @@ public class EsRestHLClientUtil {
      * @param mapping
      * @param type
      */
-    public static void createIntex(String indexName,XContentBuilder mapping, String type) {
+    public static void createIntex(String indexName, XContentBuilder mapping, String type) {
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         request.mapping(type, mapping);
         Settings settings = Settings.builder()
@@ -165,7 +162,7 @@ public class EsRestHLClientUtil {
                @Override
                public void afterBulk(long l, BulkRequest bulkRequest, BulkResponse bulkResponse) { // 3、 每次执行后调用此方法
                     if (bulkResponse.hasFailures()) {
-                        logger.warn("Bulk:[{}] 执行失败，" , l);
+                        logger.warn("Bulk:[{}] 执行失败:「{}」" , l,bulkResponse.buildFailureMessage());
                     } else {
                         logger.debug("Bulk:[{}] 在{}毫秒内完成", l, bulkResponse.getTook().getMillis());
                     }

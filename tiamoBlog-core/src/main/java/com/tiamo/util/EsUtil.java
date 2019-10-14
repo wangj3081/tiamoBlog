@@ -1,6 +1,5 @@
 package com.tiamo.util;
 
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 //import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -11,9 +10,6 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -47,14 +43,14 @@ public class EsUtil {
         source.settings(settings);
         PutIndexTemplateResponse response = client.admin().indices().putTemplate(source).actionGet();*/
 //        PutIndexTemplateRequestBuilder template = client.admin().indices().preparePutTemplate(templateName).setTemplate(templateName+"-*");
-        PutIndexTemplateRequestBuilder template = client.admin().indices().preparePutTemplate(templateName).setTemplate(templateName);
-//        template.setSettings(settings).addMapping(templateName, mapping);
-        Map<String, Object> map = new HashMap<>();
-        Map<String, Object> enabled = new HashMap<>();
-        enabled.put("enabled", false);
-        map.put("_all",enabled);
-        template.setSettings(settings).addMapping(type,mapping).addMapping("_default_").addMapping("_default_",map);
-        template.execute().actionGet();
+//        PutIndexTemplateRequestBuilder template = client.admin().indices().preparePutTemplate(templateName).setTemplate(templateName);
+////        template.setSettings(settings).addMapping(templateName, mapping);
+//        Map<String, Object> map = new HashMap<>();
+//        Map<String, Object> enabled = new HashMap<>();
+//        enabled.put("enabled", false);
+//        map.put("_all",enabled);
+//        template.setSettings(settings).addMapping(type,mapping).addMapping("_default_").addMapping("_default_",map);
+//        template.execute().actionGet();
     }
 
 

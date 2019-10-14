@@ -1,5 +1,7 @@
 package com.tiamo.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 /**
  * Created by wangjian on 2019/3/9.
  */
+@Data
 public class BlogEntity implements Serializable {
 
     private String articleId;  // 文章ID
@@ -22,6 +25,8 @@ public class BlogEntity implements Serializable {
     private String context;  // 正文
 
     private List<String> imageUrls; // 文章图片地址
+
+    private String info; // 消息
 
     public String getArticleId() {
         return articleId;

@@ -6,6 +6,13 @@ logging:
     com:
       tiamo: debug
 spring:
+#  rabbitmq:
+#    addresses: 192.168.158.134
+#    port: 5672
+#    virtual-host: /
+#    username: admin
+#    password: rabbit
+ # redis 配置
   redis:
     host: 192.168.134.130
     port: 6379
@@ -18,3 +25,12 @@ spring:
         max-wait: 100 # 毫秒
         min-idle: 1
 
+elasticjob:
+  zk:
+    serverLists: 192.168.111.129:2181
+    namespace: elastic-job
+
+elasticsearch:
+  host: 192.168.111.129
+  port: 9200
+  clusterName: es7.3

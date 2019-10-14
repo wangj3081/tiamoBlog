@@ -5,7 +5,6 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 
 
-
 /**
  * Es 高阶连接类
  * Created by wangjian on 2019/3/10.
@@ -14,10 +13,10 @@ public class EsRHLClient {
 
     // 集群名
 //    private static String clusterName = "es_66";
-    private static String clusterName = "es6.5";
+    private static String clusterName = "es7.3";
     // ip
 //    private static String ip = "192.168.134.130";
-    private static String ip = "192.168.158.134";
+    private static String ip = "192.168.111.129";
 //    private static String ip = "localhost";
     // 端口
     private static String port = "9200";

@@ -99,6 +99,7 @@ public class SearchBookServiceImpl implements SearchBookService {
                 IndexRequest request = new IndexRequest(INDEX_NAME, "book", UUID.randomUUID().toString());
                 String sourceValue = JSONObject.toJSONString(entity);
                 request.source(JSONObject.parseObject(sourceValue));
+                System.out.println(JSONObject.toJSONString(request));
                 EsRestHLClientUtil.getBulkProcessor().add(request);
             }
             return true;

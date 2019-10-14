@@ -1,30 +1,20 @@
 package com.tiamo.search.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.BlogEntity;
 import com.tiamo.search.dto.request.BlogRequest;
 import com.tiamo.search.service.SearchArticle;
-import com.tiamo.util.EsClient;
 import com.tiamo.util.EsRHLClient;
 import com.tiamo.util.EsRestHLClientUtil;
-import com.tiamo.util.EsUtil;
-import org.apache.logging.log4j.core.util.UuidUtil;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
@@ -35,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -127,7 +116,7 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
     }
 
     @Override
-    public boolean insertArticle(List<BlogEntity> list,String indexName, String type) {
+    public boolean insertArticle(List<BlogEntity> list, String indexName, String type) {
         logger.debug("【批量写入文章】:{}", JSONObject.toJSONString(list));
 
         try {
@@ -141,7 +130,8 @@ public class SearchArticleHighLevelImpl implements SearchArticle {
             e.printStackTrace();
         }
         for (BlogEntity blogEntity : list) {
-            IndexRequest indexRequest = new IndexRequest(indexName, type, UuidUtil.getTimeBasedUuid().toString());
+//            IndexRequest indexRequest = new IndexRequest(indexName, type, UuidUtil.getTimeBasedUuid().toString());
+            IndexRequest indexRequest = new IndexRequest(indexName);
             String text = JSONObject.toJSONString(blogEntity);
             indexRequest.source(JSONObject.parseObject(text));
             EsRestHLClientUtil.getBulkProcessor().add(indexRequest);
