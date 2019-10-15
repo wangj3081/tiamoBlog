@@ -6,6 +6,7 @@ import com.dangdang.ddframe.job.api.simple.SimpleJob;
 import com.tiamo.es.InsertDataToEsFromQueue;
 import com.tiamo.webdata.topic.ReadHubTopic;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.Resource;
 
@@ -29,7 +30,12 @@ public class InsertReadhubDataToEsJob implements SimpleJob {
     @Override
     public void execute(ShardingContext context) {
         try {
+            StopWatch stopWatch = new StopWatch("InsertReadhubDataToEsJob:execute");
+            stopWatch.start();
             dataToEsFromQueue.insertData(ReadHubTopic.NEWS.getCode());
+            stopWatch.stop();
+            // 打印运行耗时日志
+            stopWatch.prettyPrint();
         } catch (Exception e) {
             log.error("【job:{}】执行异常：{}", context.getJobName(), e);
         }

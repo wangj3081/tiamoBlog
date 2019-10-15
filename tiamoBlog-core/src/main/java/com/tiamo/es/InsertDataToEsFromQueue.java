@@ -11,6 +11,7 @@ import com.tiamo.webdata.topic.ReadHubTopic;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.index.IndexRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
@@ -39,6 +40,9 @@ public class InsertDataToEsFromQueue {
      * @param topic 要读取的队列
      */
     public void insertData(String topic) {
+
+        StopWatch stopWatch = new StopWatch("InsertDataToEsFromQueue:insertData");
+        stopWatch.start("insertData");
         switch (topic){
             case "news":
                 readReadhubNewsQueue();
@@ -46,6 +50,9 @@ public class InsertDataToEsFromQueue {
             default:
                 break;
         }
+        stopWatch.stop();
+        stopWatch.prettyPrint();
+
     }
 
     /**

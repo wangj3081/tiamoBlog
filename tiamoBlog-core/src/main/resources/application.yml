@@ -25,9 +25,9 @@ spring:
         max-wait: 100 # 毫秒
         min-idle: 1
 
-elasticjob:
+elastic.job:
   zk:
-    serverLists: 192.168.111.129:2181
+    serverLists: 192.168.134.130:2181
     namespace: elastic-job
 
 elasticsearch:
