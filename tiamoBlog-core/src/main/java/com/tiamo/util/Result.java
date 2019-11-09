@@ -15,13 +15,16 @@ public class Result<T> implements Serializable {
 
     private String message;
 
-    private T date;
+    private T data;
 
     public Result() {
     }
 
     public static final String ERROR_CODE = "-1";
 
+    public String getCode() {
+        return code;
+    }
 
     public String getMessage() {
         return message;
@@ -31,8 +34,8 @@ public class Result<T> implements Serializable {
         this.message = message;
     }
 
-    public T getDate() {
-        return date;
+    public T getData() {
+        return data;
     }
 
     public Result<T> error(String code, String message) {
@@ -43,7 +46,7 @@ public class Result<T> implements Serializable {
 
     public Result<T> success(T data) {
         this.code = "0";
-        this.date = data;
+        this.data = data;
         this.message = "SUCCESS";
         return this;
     }

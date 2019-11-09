@@ -7,6 +7,35 @@ spring:
   application:
     name: blog
 
+  #  rabbitmq:
+  #    addresses: 192.168.158.134
+  #    port: 5672
+  #    virtual-host: /
+  #    username: admin
+  #    password: rabbit
+  # redis 配置
+  redis:
+    host: 192.168.134.130
+    port: 6379
+    timeout: 1000 # 1秒
+    password: redis
+    jedis:
+      pool:
+        max-active: 10
+        max-idle: 8
+        max-wait: 100 # 毫秒
+        min-idle: 1
+
+elastic.job:
+  zk:
+    serverLists: 192.168.134.130:2181
+    namespace: elastic-job
+
+elasticsearch:
+  host: 192.168.134.130
+  port: 9200
+  clusterName: es7.3
+
 #logging level
 logging:
   level:

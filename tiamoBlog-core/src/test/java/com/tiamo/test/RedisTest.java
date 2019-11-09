@@ -1,7 +1,12 @@
 package com.tiamo.test;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tiamo.Application;
+import com.tiamo.es.InsertDataToEsFromQueue;
+import com.tiamo.es.index.ReadHubIndex;
 import com.tiamo.redis.RedisQueue;
+import com.tiamo.search.service.SearchReadHubService;
+import com.tiamo.webdata.ReadHubData;
 import com.tiamo.webdata.topic.ReadHubTopic;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -20,6 +26,45 @@ public class RedisTest {
   private RedisTemplate<String,String> redisTemplate;
   @Resource
   private RedisQueue redisQueue;
+  @Resource
+  private InsertDataToEsFromQueue insertDataToEsFromQueue;
+  @Resource
+  private SearchReadHubService readHubService;
+
+  @Test
+  public void searchTest() {
+    Map<String, Object> result = readHubService.queryByTopicNewsLast(ReadHubTopic.TECHNEWS.getCode());
+    System.out.println("************************************************");
+    System.out.println(JSONObject.toJSONString(result));
+    System.out.println("************************************************");
+  }
+
+
+  @Test
+  public void  insertToEsValue() {
+    insertDataToEsFromQueue.insertData(ReadHubTopic.TECHNEWS.getCode());
+    try {
+      TimeUnit.SECONDS.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void insertQueueValue() {
+    new ReadHubData().start(redisQueue, ReadHubTopic.TECHNEWS.getCode());
+    try {
+      TimeUnit.SECONDS.sleep(6);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    insertDataToEsFromQueue.insertData(ReadHubTopic.TECHNEWS.getCode());
+    try {
+      TimeUnit.SECONDS.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
 
 
   @Test

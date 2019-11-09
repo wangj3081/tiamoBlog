@@ -1,5 +1,6 @@
 package com.tiamo;
 
+import com.cxytiandi.elasticjob.annotation.EnableElasticJob;
 import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +13,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 //@EnableSwagger2  // 加载Swagger
 @EnableSwagger2Doc
+@EnableElasticJob
 public class Application {
 
     public static void main(String[] args) {

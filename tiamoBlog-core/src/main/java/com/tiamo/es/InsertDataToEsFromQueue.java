@@ -3,13 +3,20 @@ package com.tiamo.es;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.ReadHubNewsEntity;
+import com.tiamo.entity.ReadHubTechnewsEntity;
+import com.tiamo.es.index.ReadHubIndex;
 import com.tiamo.redis.RedisQueue;
 import com.tiamo.util.DateUtil;
+import com.tiamo.util.EsRHLClient;
 import com.tiamo.util.EsRestHLClientUtil;
 import com.tiamo.util.ObjectUtils;
 import com.tiamo.webdata.topic.ReadHubTopic;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.index.IndexAction;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -47,6 +54,8 @@ public class InsertDataToEsFromQueue {
             case "news":
                 readReadhubNewsQueue();
                 break;
+            case "technews":
+                readReadhubTechNewsQueue();
             default:
                 break;
         }
@@ -86,11 +95,44 @@ public class InsertDataToEsFromQueue {
                     indexRequest.source(JSONObject.parseObject(JSONObject.toJSONString(entity)));
                     EsRestHLClientUtil.getBulkProcessor().add(indexRequest);
                 });
-                log.info("【索引:{},插入数据完成】", indexName);
+                log.info("【索引:{},插入数据任务已提交】", indexName);
             }
         }
-
-
+    }
+    /**
+     * 读取 readhub 的 techNews 队列，写入到 es 的 readhub_news 索引之中
+     */
+    private void readReadhubTechNewsQueue() {
+        // 索引名
+        String indexName = ReadHubIndex.READHUB_TECHNEWS.getIndex();
+        String docType = "_doc";
+        // 在队列中存在的总消息数
+        Long length = redisQueue.queueLen(ReadHubTopic.TECHNEWS.getCode());
+        for (int i = 0; i < length; i++) {
+            // 取到一条队列记录,内容是一个data的JSON数组
+            String newsValue = redisQueue.readQueue(ReadHubTopic.TECHNEWS.getCode());
+            JSONObject newsJson = JSONObject.parseObject(newsValue);
+            JSONArray data = newsJson.getJSONArray("data");
+            if (data != null && data.size() > 0) {
+                // 获取到在队列中的数据列表
+                List<ReadHubTechnewsEntity> readHubNewsList = JSONArray.parseArray(JSONObject.toJSONString(data), ReadHubTechnewsEntity.class);
+                readHubNewsList.forEach(entity->{
+                    IndexRequest indexRequest = new IndexRequest(indexName, docType, entity.getId().toString());
+                    try {
+                        Date date = DateUtil.formatToDate(entity.getPublishDate(), DateUtil.UTC_FORMAT);
+                        String dateValue = DateUtil.formatToStr(date, DateUtil.DEFAULT_FORMAT);
+                        entity.setPublishDate(dateValue);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        log.error("【日期格式转换错误】:{}", e);
+                    }
+                    JSONObject source = JSONObject.parseObject(JSONObject.toJSONString(entity));
+                    indexRequest.source(source);
+                    EsRestHLClientUtil.getBulkProcessor().add(indexRequest);
+                });
+                log.info("【索引:{},插入数据任务已提交】", indexName);
+            }
+        }
     }
 
 }

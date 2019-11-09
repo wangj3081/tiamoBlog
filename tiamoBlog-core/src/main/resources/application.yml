@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /news
 #logging level
 logging:
   level:
@@ -31,6 +33,6 @@ elastic.job:
     namespace: elastic-job
 
 elasticsearch:
-  host: 192.168.111.129
+  host: 192.168.134.130
   port: 9200
   clusterName: es7.3

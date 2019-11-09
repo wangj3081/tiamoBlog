@@ -2,11 +2,10 @@ package com.tiamo.webdata;
 
 import com.tiamo.redis.RedisQueue;
 import com.tiamo.util.HttpUtil;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 /**
  * 读取数据线程类
@@ -45,8 +44,10 @@ public class ReadDataThread implements Runnable {
     }
     try {
       url = url + topic;
-      long time = LocalDateTime.now().plusDays(-1).toInstant(ZoneOffset.MIN).toEpochMilli();
-      String urlVal = url.intern() + "?lastCursor=" + time + "&pageSize=10";
+//      long time = LocalDateTime.now().plusDays(-1).toInstant(ZoneOffset.MIN).toEpochMilli();
+      // 获取过去 1 小时的 20 条数据
+      long time = DateTime.now().plusHours(-1).getMillis();
+      String urlVal = url.intern() + "?lastCursor=" + time + "&pageSize=20";
       String result = HttpUtil.doGet(urlVal);
       if (result != null && !"".equals(result.trim())) {
         boolean bFlag = redisQueue.writeQueue(topic, result);
