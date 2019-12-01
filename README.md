@@ -4,4 +4,5 @@
 - Elasticsearch
 - redis
 - ZooKeeper
+
 有做 RabbitMQ 的集成但是目前还没使用它，也试着用 Vue 写了一个前端页面，感觉写的不怎么样，暂时就不放出来了，有问题可以交流
