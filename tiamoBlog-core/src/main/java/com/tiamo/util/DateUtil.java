@@ -10,7 +10,7 @@ import java.util.Date;
  *
  * @author wangjian
  * @version 1.0
- * @see DateUtil
+ * @see com.tiamo.util.DateUtil
  * @since JDK1.8
  */
 public class DateUtil {

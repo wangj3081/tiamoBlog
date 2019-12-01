@@ -12,7 +12,7 @@ import java.util.Map;
  * 针对从 readhub API处获取到的数据做查询
  * @author wangjian
  * @version 1.0
- * @see SearchReadHubService
+ * @see com.tiamo.search.service.SearchReadHubService
  * @since JDK1.8
  */
 public interface SearchReadHubService {
@@ -20,9 +20,11 @@ public interface SearchReadHubService {
     /**
      * 获取相关的数据信息
      * @param jsonObject
+     * @param clazz  返回结果集要的数据实体
      * @return
      */
-    Map<String, Object> queryByReadHubNews(JSONObject jsonObject);
+    <T> Map<String, Object> queryByReadHubNews(JSONObject jsonObject, Class<T> clazz);
+
 
     /**
      * 获取标题列表
@@ -34,7 +36,8 @@ public interface SearchReadHubService {
     /**
      * 获取指定话题的最新数据
      * @param topic
+     * @param clazz 返回的列表集合的数据类型
      * @return
      */
-    Map<String, Object> queryByTopicNewsLast(String topic);
+    <T> Map<String, Object> queryByTopicNewsLast(String topic, Class<T> clazz);
 }

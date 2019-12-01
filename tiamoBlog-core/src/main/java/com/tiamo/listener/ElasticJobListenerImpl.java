@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
  * elasticJob 执行任务的监听器,需要在Job中配置了方可使用
  * @author wangjian
  * @version 1.0
- * @see ElasticJobListenerImpl
+ * @see com.tiamo.listener.ElasticJobListenerImpl
  * @since JDK1.8
  */
 @Slf4j

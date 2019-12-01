@@ -28,7 +28,7 @@ public class RedisObjectSerializer implements RedisSerializer {
    * 做序列化处理
    * @param object
    * @return
-   * @throws SerializationException
+   * @throws org.springframework.data.redis.serializer.SerializationException
    */
   @Override
   public byte[] serialize(Object object) throws SerializationException {
@@ -42,7 +42,7 @@ public class RedisObjectSerializer implements RedisSerializer {
    * 反序列化处理
    * @param data
    * @return
-   * @throws SerializationException
+   * @throws org.springframework.data.redis.serializer.SerializationException
    */
   @Override
   public Object deserialize(byte[] data) throws SerializationException {

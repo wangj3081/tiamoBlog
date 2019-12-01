@@ -8,7 +8,7 @@ import java.util.Map;
  * Readhub 搜索返回
  * @author wangjian
  * @version 1.0
- * @see ReadHubResponse
+ * @see com.tiamo.search.dto.response.ReadHubResponse
  * @since JDK1.8
  */
 public class ReadHubResponse<T> implements Serializable {

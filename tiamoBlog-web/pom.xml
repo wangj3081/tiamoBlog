@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>tiamoBlog-web</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -51,7 +52,7 @@
     <build>
         <finalName>tiamoBlog-web</finalName> <!--jar 包名称-->
         <filters>
-            <filter>src/main/resources/config/application-${environment}.yml}</filter>
+            <filter>src/main/resources/config/application-${environment}.yml</filter>
         </filters>
         <resources>
             <resource>
@@ -62,5 +63,21 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.tiamo.Application</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

@@ -1,4 +1,4 @@
-package com.tiamo.entity;
+package com.tiamo.search.dto.vo;
 
 import lombok.Data;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -6,14 +6,14 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import java.io.Serializable;
 
 /**
- * readhub news 主题
+ * 搜索结果返回
  * @author wangjian
  * @version 1.0
- * @see com.tiamo.entity.ReadHubNewsEntity
+ * @see com.tiamo.search.dto.vo.ReadHubVo
  * @since JDK1.8
  */
 @Data
-public class ReadHubNewsEntity implements Serializable {
+public class ReadHubVo implements Serializable {
 
     /**
      * 该条新闻 ID

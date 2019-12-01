@@ -11,7 +11,7 @@ import java.util.Date;
  * readhub 开发者咨询主题
  * @author wangjian
  * @version 1.0
- * @see ReadHubTechnewsEntity
+ * @see com.tiamo.entity.ReadHubTechnewsEntity
  * @since JDK1.8
  */
 @Data

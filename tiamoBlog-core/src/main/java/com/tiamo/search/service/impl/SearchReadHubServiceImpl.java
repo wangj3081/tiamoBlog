@@ -3,6 +3,7 @@ package com.tiamo.search.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tiamo.entity.ReadHubNewsEntity;
+import com.tiamo.entity.ReadHubTopicEntity;
 import com.tiamo.es.index.ReadHubIndex;
 import com.tiamo.search.service.SearchReadHubService;
 import com.tiamo.util.DateUtil;
@@ -11,6 +12,7 @@ import com.tiamo.util.EsRestHLClientUtil;
 import com.tiamo.util.EsUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchRequest;
@@ -41,7 +43,7 @@ import java.util.*;
  * readhub 新闻搜索服务
  * @author wangjian
  * @version 1.0
- * @see SearchReadHubServiceImpl
+ * @see com.tiamo.search.service.impl.SearchReadHubServiceImpl
  * @since JDK1.8
  */
 @Slf4j
@@ -50,7 +52,7 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
 
 
     @Override
-    public Map<String, Object> queryByReadHubNews(JSONObject jsonObject) {
+    public <T> Map<String, Object> queryByReadHubNews(JSONObject jsonObject, Class<T> clazz) {
         RestHighLevelClient client = EsRHLClient.getEsClient();
         Map<String, Object> resultMap = new HashMap<>();
         // 获取索引主题
@@ -93,7 +95,7 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
 //            SearchTemplateResponse response = client.searchTemplate(templateRequest, RequestOptions.DEFAULT);
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
             // 返回内容
-            List<ReadHubNewsEntity> searchResultList = EsRestHLClientUtil.getSearchResultList(response, ReadHubNewsEntity.class);
+            List<T> searchResultList = EsRestHLClientUtil.getSearchResultList(response, clazz);
             // 聚合内容
             Aggregations aggregations = response.getAggregations();
             ParsedStringTerms authorGroup = aggregations.get("authorGroup");
@@ -125,7 +127,10 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
 //        List<ReadHubNewsEntity> result = new ArrayList<>();
         JSONArray result = new JSONArray();
         RestHighLevelClient client = EsRHLClient.getEsClient();
-        SearchRequest searchRequest = new SearchRequest();
+        Set<String> keySet = ReadHubIndex.mapReadhubIndex.keySet();
+        // 只搜索指定的索引集合
+        String[] indexs = keySet.toArray(new String[keySet.size()]);
+        SearchRequest searchRequest = new SearchRequest(indexs);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         MatchPhraseQueryBuilder phraseQueryBuilder = new MatchPhraseQueryBuilder("title", title);
         // 只返回 title 字段，其他字段为 null
@@ -133,7 +138,6 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-            List<ReadHubNewsEntity> resultList = EsRestHLClientUtil.getSearchResultList(response, ReadHubNewsEntity.class);
             if (response.getHits() != null) {
                 SearchHit[] searchHits = response.getHits().getHits();
                 for (SearchHit searchHit : searchHits) {
@@ -152,7 +156,7 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
     }
 
     @Override
-    public Map<String, Object> queryByTopicNewsLast(String topic) {
+    public <T> Map<String, Object> queryByTopicNewsLast(String topic, Class<T> clazz) {
         log.debug("【传入话题】: {}", topic);
         HashMap<String, Object> resultMap = new HashMap<>();
         // 获取指定索引
@@ -179,7 +183,7 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
             // 返回内容
-            List<ReadHubNewsEntity> searchResultList = EsRestHLClientUtil.getSearchResultList(response, ReadHubNewsEntity.class);
+            List<T> searchResultList = EsRestHLClientUtil.getSearchResultList(response, clazz);
             // 聚合内容
             Aggregations aggregations = response.getAggregations();
             ParsedStringTerms siteGroup = aggregations.get("siteNameGroup");
@@ -199,4 +203,66 @@ public class SearchReadHubServiceImpl implements SearchReadHubService {
         }
         return resultMap;
     }
+
+    /*@Override
+    public Map<String, Object> queryByTopicNewsLast(JSONObject jsonObject) {
+        log.debug("【获取热门话题的数据信息】:{}", JSONObject.toJSONString(jsonObject));
+        RestHighLevelClient client = EsRHLClient.getEsClient();
+        Map<String, Object> resultMap = new HashMap<>();
+        // 获取索引主题
+        String topic = jsonObject.getString("topic");
+        // 搜索消息
+        String message = jsonObject.getString("message");
+        // 请求页码
+        Integer pageSize = jsonObject.getInteger("pageSize");
+        Integer size = 3;
+        if (pageSize == 1) {
+            size = 50;
+        }
+        ReadHubIndex readHubIndex = ReadHubIndex.mapReadhubTopic.get(topic);
+        if (readHubIndex == null) {
+            return resultMap;
+        }
+
+        // 搜索语句请求
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(readHubIndex.getIndex());
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+        // 全文检索新闻内容,Operator.AND 分词后的内容都包含
+        MatchQueryBuilder matchQuerySummary = new MatchQueryBuilder("summary",message).operator(Operator.OR).boost(10);
+        boolQuery.should(matchQuerySummary);
+        // 短语检索新闻标题
+        MatchPhraseQueryBuilder phraseQueryBuilder = new MatchPhraseQueryBuilder("title", message).boost(50);
+        boolQuery.should(phraseQueryBuilder);
+        sourceBuilder.query(boolQuery).from((pageSize-1) * size).size(size);
+        // 设置聚合处理,按作者分组统计, 第一个参数为分组的组名，第二个参数为每个组的 Key 的数据类型
+        TermsAggregationBuilder groupAggregation = new TermsAggregationBuilder("authorGroup", ValueType.STRING)
+                .field("siteName").size(10);
+        sourceBuilder.aggregation(groupAggregation);
+        searchRequest.source(sourceBuilder);
+        log.info("DSL:{}", sourceBuilder.toString());
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            // 搜索返回结果
+            List<ReadHubTopicEntity> searchList = EsRestHLClientUtil.getSearchResultList(response, ReadHubTopicEntity.class);
+            // 聚合内容
+            Aggregations aggregations = response.getAggregations();
+            ParsedStringTerms authorGroup = aggregations.get("authorGroup");
+            // 获取到集合
+            List<? extends Terms.Bucket> bucketList = authorGroup.getBuckets();
+            Map<String, Long> aggMap = new HashMap<>();
+            for ( Terms.Bucket bucket : bucketList) {
+                aggMap.put(bucket.getKeyAsString(), bucket.getDocCount());
+            }
+            // 符合条件的总条数
+            long total = response.getHits().getTotalHits().value;
+            resultMap.put("listVal", searchList);
+            resultMap.put("aggs", aggMap);
+            resultMap.put("total", total);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return resultMap;
+    }*/
 }

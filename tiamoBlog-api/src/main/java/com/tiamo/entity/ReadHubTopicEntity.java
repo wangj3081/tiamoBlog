@@ -4,29 +4,31 @@ import lombok.Data;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * readhub news 主题
+ * Readhub 热点话题实体
  * @author wangjian
  * @version 1.0
- * @see com.tiamo.entity.ReadHubNewsEntity
+ * @see com.tiamo.entity.ReadHubTopicEntity
  * @since JDK1.8
  */
 @Data
-public class ReadHubNewsEntity implements Serializable {
-
+public class ReadHubTopicEntity implements Serializable {
     /**
+     * 热点新闻的 ID 拼接上 readhub 的 url 实际就是该新闻的相关详情内容
      * 该条新闻 ID
      */
-    private Long id;
+    private String id;
     /**
      * 标题
      */
     private String title;
     /**
-     * 内容摘要
+     * 网站名称
      */
-    private String summaryAuto;
+    private String siteName;
+
     /**
      * 总内容
      */
@@ -36,25 +38,22 @@ public class ReadHubNewsEntity implements Serializable {
      */
     private String url;
     /**
-     * 手机读取连接
+     * 媒体新闻
      */
-    private String mobileUrl;
-    /**
-     * 网站名称
-     */
-    private String siteName;
-    /**
-     * 使用语言
-     */
-    private String language;
-    /**
-     * 作者
-     */
-    private String authorName;
+    private List<ReadHubNewsEntity>  newsArray;
+
     /**
      * 发布日期
      */
     private String publishDate;
+    /**
+     * 创建日期
+     */
+    private String createdAt;
+    /**
+     * 时间线
+     */
+    private String timeline;
 
     @Override
     public String toString() {

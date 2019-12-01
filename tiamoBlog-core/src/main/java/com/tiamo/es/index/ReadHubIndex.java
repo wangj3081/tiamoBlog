@@ -8,12 +8,14 @@ import java.util.Map;
  * ReadHub 的 ES 索引
  * @author wangjian
  * @version 1.0
- * @see ReadHubIndex
+ * @see com.tiamo.es.index.ReadHubIndex
  * @since JDK1.8
  */
 public enum ReadHubIndex {
     READHUB_NEWS("readhub_news", "news","科技动态"),
-    READHUB_TECHNEWS("readhub_technews", "technews","开发者咨询");
+    READHUB_TOPIC("readhub_topic", "topic","热点新闻"),
+    READHUB_TECHNEWS("readhub_technews", "technews","开发者资讯"),
+    READHUB_BLOCKCHAIN("readhub_blockchain", "blockchain","区块链资讯");
     private String index;
     private String topic;
     private String text;

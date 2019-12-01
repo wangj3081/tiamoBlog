@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  * 执行获取 readhub 数据任务
  * @author wangjian
  * @version 1.0
- * @see ReadHubDataJob
+ * @see com.tiamo.job.ReadHubDataJob
  * @since JDK1.8
  */
 @ElasticJobConf(name = "readhubDataJob", cron = "0 0 0/1 * * ? "

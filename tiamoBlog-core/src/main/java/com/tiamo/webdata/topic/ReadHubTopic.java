@@ -11,8 +11,8 @@ public enum ReadHubTopic {
   NEWS("news","科技动态"),
   TOPIC("topic", "热门话题"),
   TECHNEWS("technews", "开发者资讯"),
-  BLOCKCHAIN("blockchain", "区块链快讯"),
-  JOBS("jobs", "招聘行情");
+  BLOCKCHAIN("blockchain", "区块链快讯");
+//  JOBS("jobs", "招聘行情"); // readhub 关掉了这个数据源
 
   private String code;
 

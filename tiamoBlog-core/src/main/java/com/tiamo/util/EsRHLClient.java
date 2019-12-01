@@ -15,8 +15,8 @@ public class EsRHLClient {
 //    private static String clusterName = "es_66";
     private static String clusterName = "es7.3";
     // ip
-    private static String ip = "192.168.134.130";
-//    private static String ip = "192.168.111.129";
+//    private static String ip = "192.168.134.130";
+    private static String ip = "192.168.111.129";
 //    private static String ip = "localhost";
     // 端口
     private static String port = "9200";

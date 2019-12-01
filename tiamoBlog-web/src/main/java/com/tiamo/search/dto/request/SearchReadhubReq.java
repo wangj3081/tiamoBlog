@@ -9,7 +9,7 @@ import java.io.Serializable;
  * 搜索 Readhub 请求参数
  * @author wangjian
  * @version 1.0
- * @see SearchReadhubReq
+ * @see com.tiamo.search.dto.request.SearchReadhubReq
  * @since JDK1.8
  */
 @Data

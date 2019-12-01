@@ -10,7 +10,7 @@ import java.util.Map;
  * 对象转换工具类
  * @author wangjian
  * @version 1.0
- * @see ObjectUtils
+ * @see com.tiamo.util.ObjectUtils
  * @since JDK1.8
  */
 public class ObjectUtils {
